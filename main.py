@@ -18,6 +18,7 @@ HEADING = os.environ.get("HEADING", "--**Bots Online Status**--")
 ATTACH_LINK = os.environ.get("ATTACH_LINK", None)
 
 User = Client(
+    "Bot-Status-UserBot",
     SESSION_STRING,
     api_id=API_ID,
     api_hash=API_HASH
@@ -27,13 +28,16 @@ User = Client(
 def main():
     with User:
         while True:
+            
             print("[INFO] starting to check uptime..")
+            
             if ATTACH_LINK:
                 hide_preview = False
                 status_text = f"[\u2063]({ATTACH_LINK})" + HEADING + "\n"
             else:
                 hide_preview = True
                 status_text = HEADING + "\n"
+            
             for bot in BOTS:
                 print(f"[INFO] checking @{bot}")
                 start_message = User.send_message(
@@ -55,10 +59,12 @@ def main():
                     status_text += f"\n🤖 **Bot :-** [{bot}](https://telegram.me/{bot})" \
                                  f"\n**⚜ Status :-** `Online` ✅\n"
                 User.read_history(bot)
+            
             limit = TIME_LIMIT // 60
             utc_now = datetime.datetime.now(pytz.timezone('UTC')).strftime("%I:%M %p %d/%m/%y")
             status_text += f"\n**Last checked:**\n{str(utc_now)} UTC ⏰"
             status_text += f"\n`Updated on every {limit} hours`"
+            
             try:
                 User.edit_message_text(
                     chat_id=UPDATE_CHANNEL,
@@ -74,11 +80,12 @@ def main():
                     chat_id=BOT_OWNER,
                     text=error_text
                 )
+            
             time.sleep(TIME_LIMIT * 60)
 
 
 if SESSION_STRING and API_HASH and API_ID and BOTS and BOT_OWNER and UPDATE_CHANNEL and MESSAGE_ID:
-    print("Bot working fine")
     main()
+    print("Bot working fine")
 else:
     print("Fill full variables")
